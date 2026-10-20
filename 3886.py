@@ -9,25 +9,37 @@ class Solution:
             if n % k != 0:
                 continue
 
-            if k == 1:
-                if nums == sorted(nums):
-                    ans += 1
-                continue
-
-            valid = True
+            possible = True
+            prev_max = float('-inf')
 
             for i in range(0, n, k):
                 arr = nums[i:i + k]
-                drops = sum(
-                    arr[j] > arr[(j + 1) % k]
-                    for j in range(k)
-                )
+                m = len(arr)
+
+                drops = 0
+                drop_idx = -1
+
+                for j in range(m):
+                    if arr[j] > arr[(j + 1) % m]:
+                        drops += 1
+                        drop_idx = j
 
                 if drops > 1:
-                    valid = False
+                    possible = False
                     break
 
-            if valid:
+                if drops == 1:
+                    rotated = arr[drop_idx + 1:] + arr[:drop_idx + 1]
+                else:
+                    rotated = arr
+
+                if rotated[0] < prev_max:
+                    possible = False
+                    break
+
+                prev_max = rotated[-1]
+
+            if possible:
                 ans += k
 
         return ans
