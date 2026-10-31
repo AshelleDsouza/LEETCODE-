@@ -37,4 +37,27 @@ class Solution:
 
             r, c = remaining[best_idx]
             b = (r // 3) * 3 + c // 3
-            rest = remaining[:best_idx]
+            rest = remaining[:best_idx] + remaining[best_idx + 1:]
+
+            mask = best_mask
+            while mask:
+                bit = mask & -mask               # lowest set bit
+                mask ^= bit
+                d = bit.bit_length() - 1
+
+                rows[r] |= bit
+                cols[c] |= bit
+                boxes[b] |= bit
+                board[r][c] = str(d)
+
+                if solve(rest):
+                    return True
+
+                rows[r] ^= bit
+                cols[c] ^= bit
+                boxes[b] ^= bit
+                board[r][c] = '.'
+
+            return False
+
+        solve(empties)
