@@ -10,7 +10,7 @@ class Solution:
             while avail:
                 bit = avail & -avail
                 avail ^= bit
-                count += solve(
+                count += sol
                     cols | bit,
                     ((diag | bit) << 1) & full,
                     (anti | bit) >> 1,
