@@ -6,23 +6,24 @@ class Solution:
         heapq.heapify(free)
         busy = []
         ans = []
+        time = 0
 
-        for t, task in enumerate(tasks):
-            while busy and busy[0][0] <= t:
-                end, w, i = heapq.heappop(busy)
-                heapq.heappush(free, (w, i))
+        for i, task in enumerate(tasks):
+            time = max(time, i)
+
+            while busy and busy[0][0] <= time:
+                end, w, s = heapq.heappop(busy)
+                heapq.heappush(free, (w, s))
 
             if not free:
-                end, w, i = heapq.heappop(busy)
-                t = end
-                heapq.heappush(free, (w, i))
+                time = busy[0][0]
 
-                while busy and busy[0][0] <= t:
-                    end, w, i = heapq.heappop(busy)
-                    heapq.heappush(free, (w, i))
+                while busy and busy[0][0] <= time:
+                    end, w, s = heapq.heappop(busy)
+                    heapq.heappush(free, (w, s))
 
-            w, i = heapq.heappop(free)
-            ans.append(i)
-            heapq.heappush(busy, (t + task, w, i))
+            w, s = heapq.heappop(free)
+            ans.append(s)
+            heapq.heappush(busy, (time + task, w, s))
 
         return ans
