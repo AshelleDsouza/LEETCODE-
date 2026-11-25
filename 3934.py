@@ -1,39 +1,62 @@
 
 class Solution:
-    def minLength(self, nums: List[int]) -> int:
+    def smallestUniqueSubarray(self, nums: List[int]) -> int:
         n = len(nums)
-        mod1, mod2 = 1000000007, 1000000009
-        base = 911382323
+        sa = list(range(n))
+        rank = nums[:]
+        k = 1
 
-        def check(k):
-            p1 = pow(base, k - 1, mod1)
-            p2 = pow(base, k - 1, mod2)
+        while k < n:
+            sa.sort(key=lambda i: (rank[i], rank[i+k] if i+k < n else -1))
 
-            h1 = h2 = 0
-            count = {}
+            temp = [0] * n
 
-            for i in range(n):
-                h1 = (h1 * base + nums[i]) % mod1
-                h2 = (h2 * base + nums[i]) % mod2
+            for j in range(1, n):
+                a, b = sa[j-1], sa[j]
+                x = (rank[a], rank[a+k] if a+k < n else -1)
+                y = (rank[b], rank[b+k] if b+k < n else -1)
+                temp[b] = temp[a] + (x != y)
 
-                if i >= k:
-                    h1 = (h1 - nums[i-k] * p1) % mod1
-                    h2 = (h2 - nums[i-k] * p2) % mod2
+            rank = temp
 
-                if i >= k - 1:
-                    key = (h1, h2)
-                    count[key] = count.get(key, 0) + 1
+            if rank[sa[-1]] == n - 1:
+                break
 
-            return any(v == 1 for v in count.values())
+            k *= 2
 
-        left, right = 1, n
+        pos = [0] * n
+        for i, x in enumerate(sa):
+            pos[x] = i
 
-        while left < right:
-            mid = (left + right) // 2
+        lcp = [0] * n
+        h = 0
 
-            if check(mid):
-                right = mid
-            else:
-                left = mid + 1
+        for i in range(n):
+            r = pos[i]
 
-        return left
+            if r == 0:
+                h = 0
+                continue
+
+            j = sa[r-1]
+
+            while i+h < n and j+h < n and nums[i+h] == nums[j+h]:
+                h += 1
+
+            lcp[r] = h
+            h = max(0, h-1)
+
+        ans = n
+
+        for r, i in enumerate(sa):
+            common = lcp[r]
+
+            if r+1 < n:
+                common = max(common, lcp[r+1])
+
+            length = common + 1
+
+            if length <= n-i:
+                ans = min(ans, length)
+
+        return ans
